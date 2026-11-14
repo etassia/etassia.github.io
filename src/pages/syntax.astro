@@ -1,0 +1,89 @@
+---
+import Layout from '../layouts/Layout.astro'
+import DiagramFigure from '../components/DiagramFigure.astro'
+import { samples, groups, NATIVE_COUNT, DETECTED_KEYWORD_COUNT, GOLDEN_CASE_COUNT, type Sample } from '../data/samples'
+
+const unported = ['sankey-beta', 'error', 'flowchart-elk']
+---
+<Layout
+  title="Diagram syntaxes — Etassia"
+  description="The Mermaid diagram syntaxes Etassia supports: 22 diagram types rendered natively by the Rust runtime, with the detected-but-unported boundary stated explicitly."
+>
+  <article class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+    <header>
+      <p class="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">Syntax</p>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Supported diagram syntaxes</h1>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        A diagram source that reaches Etassia passes through two stages before any renderer runs.
+        The detector first recognizes which of the {DETECTED_KEYWORD_COUNT} Mermaid diagram keywords
+        the source uses; the parse stage then reads the body of the source with the grammar entry
+        for that type. This page lists every detected type with a short source sample and, where a
+        native renderer exists, the SVG that the engine produces for it.
+      </p>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        The boundary of the current release is stated explicitly. This release renders
+        {NATIVE_COUNT} diagram types natively. The detected types
+        {unported.map((k) => (
+          <><code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">{k}</code>{' '}</>
+        ))}
+        return an Unported error, which the runtime bindings translate into a fallback call to the
+        reference Ruby implementation. Every SVG shown on this page is a verbatim copy of the
+        golden-corpus reference output, and the corpus test asserts byte-identical equality between
+        this output and the Rust runtime for each of the {GOLDEN_CASE_COUNT.toLocaleString('en-US')} cases.
+      </p>
+    </header>
+
+    {groups.map((group) => (
+      <section class="mt-12">
+        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">{group.heading}</h2>
+        <p class="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">{group.blurb}</p>
+
+        <div class="mt-6 space-y-8">
+          {samples.filter((s) => s.group === group.key).map((sample: Sample) => (
+            <div class="card" id={sample.id}>
+              <div class="flex flex-wrap items-baseline justify-between gap-3">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{sample.name}</h3>
+                {sample.native
+                  ? <span class="badge badge-native">Native renderer</span>
+                  : <span class="badge badge-fallback">Unported &mdash; fallback to the reference implementation</span>}
+              </div>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 font-mono">{sample.keywords}</p>
+              <p class="mt-3 text-gray-600 dark:text-gray-300 leading-relaxed">{sample.purpose}</p>
+
+              <details class="mt-4">
+                <summary class="text-sm font-medium text-gray-700 dark:text-gray-300 cursor-pointer select-none">Diagram source</summary>
+                <pre class="mt-2 rounded-lg bg-gray-900 text-gray-100 text-xs p-4 overflow-x-auto max-h-64"><code>{sample.source.trim()}</code></pre>
+              </details>
+
+              {sample.svg ? (
+                <DiagramFigure
+                  src={sample.svg}
+                  alt={`${sample.name} rendered from the Mermaid sample above`}
+                  caption="Byte-identical to the golden-corpus reference output of the Ruby implementation."
+                  maxWidth="46rem"
+                />
+              ) : (
+                <p class="mt-4 rounded-lg border border-yellow-300 bg-yellow-50 dark:border-yellow-700 dark:bg-yellow-900/20 p-4 text-sm text-yellow-900 dark:text-yellow-200">
+                  No rendered sample is shown, because the Rust runtime has no renderer for this type
+                  in the current release. A caller that receives the Unported condition renders the
+                  source with the reference Ruby implementation instead.
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="mt-12">
+      <div class="card">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Try the engine</h2>
+        <p class="mt-2 text-gray-600 dark:text-gray-300 leading-relaxed">
+          The playground runs the same WebAssembly build of the engine in the browser, with an
+          editor on the left and the SVG on the right.
+        </p>
+        <a href="/playground" class="btn btn-primary mt-4">Open the playground</a>
+      </div>
+    </section>
+  </article>
+</Layout>

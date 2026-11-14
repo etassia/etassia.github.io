@@ -1,0 +1,207 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const runtimes = [
+  {
+    name: 'Rust crate',
+    pkg: 'etassia',
+    registry: 'crates.io',
+    href: 'https://crates.io/crates/etassia',
+    note: 'The rendering runtime with the baked, checksummed parse artifact.',
+  },
+  {
+    name: 'Ruby gem',
+    pkg: 'etassia',
+    registry: 'RubyGems',
+    href: 'https://rubygems.org/gems/etassia',
+    note: 'The pure-Ruby reference implementation.',
+  },
+  {
+    name: 'Ruby gem',
+    pkg: 'etassia-native',
+    registry: 'RubyGems',
+    href: 'https://rubygems.org/gems/etassia-native',
+    note: 'The compiled engine as a native extension for Ruby.',
+  },
+  {
+    name: 'Python package',
+    pkg: 'etassia',
+    registry: 'PyPI',
+    href: 'https://pypi.org/project/etassia/',
+    note: 'A ctypes binding over the C ABI of the shared library.',
+  },
+  {
+    name: 'npm package',
+    pkg: 'etassia',
+    registry: 'npm',
+    href: 'https://www.npmjs.com/package/etassia',
+    note: 'The engine compiled to WebAssembly.',
+  },
+]
+
+const repos = [
+  { href: 'https://github.com/etassia/etassia', label: 'etassia/etassia', note: 'The pure-Ruby reference implementation.' },
+  { href: 'https://github.com/etassia/etassia-rs', label: 'etassia/etassia-rs', note: 'The Rust runtime, the FFI and WebAssembly surfaces, and the runtime bindings.' },
+  { href: 'https://github.com/etassia/etassia-mermaid-parg', label: 'etassia/etassia-mermaid-parg', note: 'The Mermaid grammar, compiled to the parse artifact the runtimes embed.' },
+]
+---
+<Layout
+  title="About — Etassia"
+  description="The etymology, origin, mission and ecosystem of Etassia, a diagram-rendering engine that produces byte-identical SVG from Mermaid syntax on four runtimes."
+>
+  <article class="max-w-3xl mx-auto px-4 sm:px-6 py-12">
+    <header class="text-center mb-12">
+      <p class="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">About</p>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Etassia draws order out of source text</h1>
+      <p class="mt-4 text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
+        Etassia is a diagram-rendering engine for Mermaid diagram syntax. The name, the mission,
+        and the engineering all point at the same idea: a diagram is order drawn out of source
+        text, and the drawing should not depend on the language the drawing program is written in.
+      </p>
+    </header>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Etymology and symbolism</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        The name Etassia derives from the Ancient Greek verb
+        <em>&#7940;&#954;&#964;&#940;&#963;&#963;&#969;</em> (ekt&aacute;ss&#333;), which means
+        &ldquo;to draw up in formation, to array&rdquo;. The verb is compounded from
+        <em>&#7940;&#954;</em> (ek), &ldquo;out of&rdquo;, and <em>&tau;&#940;&#963;&#963;&#969;</em>
+        (t&aacute;ss&#333;), &ldquo;to arrange, to order&rdquo;. In classical use the verb
+        describes troops drawn up in order of battle; in this project it describes the same
+        operation applied to text, from which a diagram is drawn up as an ordered formation of
+        nodes, edges and labels.
+      </p>
+      <table class="roots mt-6 w-full border-collapse text-sm">
+        <thead>
+          <tr>
+            <th class="text-left py-2 px-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">Part</th>
+            <th class="text-left py-2 px-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">Root</th>
+            <th class="text-left py-2 px-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 uppercase text-xs tracking-wider">Meaning</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700"><code>&#7940;&#954;-</code></td>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700">Ancient Greek <em>&#7940;&#954;</em> (ek)</td>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700">out of</td>
+          </tr>
+          <tr>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700"><code>-&#964;&#940;&#963;&#963;&#969;</code></td>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700">Ancient Greek <em>&tau;&#940;&#963;&#963;&#969;</em> (t&aacute;ss&#333;)</td>
+            <td class="py-2 px-3 border-b border-gray-200 dark:border-gray-700">to arrange, to order; to draw up in formation</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Origin</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        Mermaid diagram syntax has become the common way to carry a diagram inside documentation:
+        the source is plain text, it lives beside the prose in the repository, and it reviews like
+        code. Rendering that source, however, has remained bound to one implementation, and
+        documentation pipelines that are not written in JavaScript have had to shell out to an
+        external process or to accept output that differs between tools.
+      </p>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        Etassia began as a pure-Ruby implementation that renders Mermaid syntax to SVG, grown for
+        the publication pipelines that Ribose maintains for standards-development organisations.
+        The implementation was then ported to Rust, diagram type by diagram type, with a hand-ported
+        renderer for every type in the native set. The correctness measure of the port is strict:
+        on a golden corpus of 1,206 cases, the SVG the Rust runtime produces is byte-identical to
+        the SVG the Ruby reference implementation produces, which removes any question of whether
+        the two engines &ldquo;look the same&rdquo;.
+      </p>
+    </section>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Mission</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        Etassia is designed to meet the needs of documentation pipelines that must render diagrams
+        deterministically and in their own language. The engine keeps one parse artifact, compiled
+        ahead of time and checksummed, so that parsing does not drift between deployments. It keeps
+        one native boundary, a C ABI of three functions, so that adding a runtime binding is a thin
+        act of binding rather than a reimplementation. And it measures every renderer against the
+        reference implementation on the golden corpus, so that identical input yields identical
+        SVG on Ruby, Rust, Python and WebAssembly.
+      </p>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        The boundary of this mission is stated explicitly. Types in the Mermaid syntax for which
+        the Rust runtime has no renderer yet are detected and reported through the Unported error
+        class, which the bindings translate into a fallback call to the reference Ruby
+        implementation; the syntax page names the types that are in this state in the current
+        release.
+      </p>
+    </section>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">The ecosystem</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        Every project lives at
+        <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2" href="https://github.com/etassia" target="_blank" rel="noopener noreferrer">github.com/etassia</a>.
+        The packages are published under the plain name <code>etassia</code> in each registry,
+        except the Ruby compiled-engine gem, which is named <code>etassia-native</code>.
+      </p>
+      <div class="mt-6 space-y-4">
+        <div class="ecosystem-block rounded-xl bg-gray-100 dark:bg-gray-800 p-5">
+          <h3 class="font-semibold text-gray-900 dark:text-white">Runtime packages</h3>
+          <ul class="mt-3 space-y-2 text-sm">
+            {runtimes.map((r) => (
+              <li class="text-gray-600 dark:text-gray-300">
+                <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2 font-medium" href={r.href} target="_blank" rel="noopener noreferrer">{r.pkg}</a>
+                <span class="text-gray-400 dark:text-gray-500"> ({r.registry})</span>
+                <span class="text-gray-500 dark:text-gray-400"> &mdash; {r.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div class="ecosystem-block rounded-xl bg-gray-100 dark:bg-gray-800 p-5">
+          <h3 class="font-semibold text-gray-900 dark:text-white">Repositories</h3>
+          <ul class="mt-3 space-y-2 text-sm">
+            {repos.map((r) => (
+              <li class="text-gray-600 dark:text-gray-300">
+                <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2 font-medium" href={r.href} target="_blank" rel="noopener noreferrer">{r.label}</a>
+                <span class="text-gray-500 dark:text-gray-400"> &mdash; {r.note}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mb-12">
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Open source</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        Etassia is BSD-2-Clause licensed and maintained by Ribose and the broader community. The
+        golden corpus that carries the byte-identical parity property is part of the runtime
+        repository, so a contribution to a renderer can be checked against the same measure the
+        maintainers use. Contributions are welcome through the repositories of the organization.
+      </p>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Get started</h2>
+      <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+        Install the runtime for your language and render a first diagram, or read a diagram being
+        rendered live in the playground.
+      </p>
+      <pre class="mt-4 rounded-lg bg-gray-900 text-gray-100 text-sm p-4 overflow-x-auto"><code>cargo add etassia
+gem install etassia
+pip install etassia
+npm install etassia</code></pre>
+      <p class="mt-4 text-gray-600 dark:text-gray-300">
+        <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2" href="/playground">Open the playground</a>
+        to edit Mermaid source and watch the engine render it in the browser, or
+        <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2" href="/syntax">read the syntax page</a>
+        for the full list of supported diagram types.
+      </p>
+    </section>
+  </article>
+</Layout>
+
+<style>
+  .roots th {
+    font-weight: 600;
+  }
+</style>
