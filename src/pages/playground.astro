@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Playground from '../islands/Playground.vue'
+
+const presets = ['flowchart', 'sequenceDiagram', 'pie', 'gantt']
+---
+<Layout
+  title="Playground — Etassia"
+  description="Edit Mermaid diagram source and watch the Etassia WebAssembly engine render it to SVG in the browser."
+>
+  <article class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
+    <header class="max-w-3xl">
+      <p class="text-xs uppercase tracking-widest text-gray-500 dark:text-gray-400">Playground</p>
+      <h1 class="mt-2 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Render Mermaid source in the browser</h1>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        Rendering a diagram is the work of a rendering engine, not of a visual impression, and the
+        playground exists so that the engine can be exercised directly. The page runs the same
+        WebAssembly build of the Rust runtime that the npm package ships; the source in the editor
+        is handed to the engine, and the engine returns the SVG, which the page inserts without
+        modification. Preset samples for the {presets.join(', ')} types are selectable, and the
+        output re-renders 250 milliseconds after the last keystroke.
+      </p>
+      <p class="mt-4 text-gray-600 dark:text-gray-300 leading-relaxed">
+        The boundary of the browser build is the boundary of the native renderer set. A source
+        whose diagram type has no native renderer reports the Unported condition in the output
+        panel, together with a statement of what a runtime binding does with it; the full list of
+        native and unported types is on the
+        <a class="text-primary-600 dark:text-primary-400 underline underline-offset-2" href="/syntax">syntax page</a>.
+      </p>
+    </header>
+
+    <div class="mt-8">
+      <Playground client:only="vue" />
+    </div>
+  </article>
+</Layout>

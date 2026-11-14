@@ -1,0 +1,15 @@
+---
+interface Props {
+  src: string
+  alt: string
+  caption?: string
+  maxWidth?: string
+}
+const { src, alt, caption, maxWidth = '42rem' } = Astro.props
+---
+<figure class="my-6">
+  <div class="diagram-canvas" style={`max-width: ${maxWidth}`}>
+    <img src={src} alt={alt} loading="lazy" />
+  </div>
+  {caption && <figcaption class="mt-2 text-sm text-gray-500 dark:text-gray-400">{caption}</figcaption>}
+</figure>

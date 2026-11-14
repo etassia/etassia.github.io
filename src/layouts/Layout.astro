@@ -1,0 +1,66 @@
+---
+import '../styles/global.css'
+import AppHeader from '../components/AppHeader.astro'
+import AppFooter from '../components/AppFooter.astro'
+
+interface Props {
+  title?: string
+  description?: string
+  noindex?: boolean
+}
+
+const {
+  title = 'Etassia',
+  description = 'Etassia renders Mermaid diagram syntax to SVG from a Rust runtime with a checksummed parse artifact, and ships identical output to Ruby, Rust, Python, and WebAssembly runtimes.',
+  noindex = false,
+} = Astro.props
+
+const canonical = new URL(Astro.url.pathname, Astro.site)
+const ogImage = new URL('/og.svg', Astro.site)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Etassia',
+  url: Astro.site,
+}
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  {noindex && <meta name="robots" content="noindex" />}
+  <link rel="canonical" href={canonical} />
+  <link rel="alternate" type="application/xml" title="Sitemap" href={new URL('sitemap-index.xml', Astro.site)} />
+  <meta property="og:site_name" content="Etassia" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={ogImage} />
+  <meta name="twitter:card" content="summary" />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="theme-color" content="#f9fafb" id="meta-theme-color" />
+  <script is:inline>
+    function syncThemeColor() {
+      var meta = document.getElementById('meta-theme-color')
+      if (meta) meta.content = document.documentElement.classList.contains('dark') ? '#111827' : '#f9fafb'
+    }
+    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark')
+    }
+    syncThemeColor()
+  </script>
+</head>
+<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-white dark:focus:bg-gray-900 focus:text-primary-700 dark:focus:text-primary-300 focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg">Skip to content</a>
+  <AppHeader />
+  <main id="main" class="flex-1">
+    <slot />
+  </main>
+  <AppFooter />
+</body>
+</html>
