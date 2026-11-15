@@ -29,6 +29,7 @@ interface Exports {
   etassia_alloc(len: number): number
   etassia_dealloc(ptr: number, len: number): void
   etassia_render(ptr: number, len: number): number
+  etassia_render_dim(ptr: number, len: number): number
   etassia_detect(ptr: number, len: number): number
   etassia_result_ptr(): number
   etassia_result_len(): number
@@ -82,7 +83,10 @@ export async function loadEngine(url = '/etassia.wasm'): Promise<void> {
   memory = instance.memory
 }
 
-function call(fn: 'etassia_render' | 'etassia_detect', source: string): string {
+function call(
+  fn: 'etassia_render' | 'etassia_render_dim' | 'etassia_detect',
+  source: string,
+): string {
   if (!instance) throw new Error('the etassia engine is not loaded; call loadEngine() first')
   const w = instance
   const bytes = new TextEncoder().encode(source)
