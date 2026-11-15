@@ -1,171 +1,226 @@
 ---
 import Layout from '../layouts/Layout.astro'
-import DiagramFigure from '../components/DiagramFigure.astro'
-import { samples, NATIVE_COUNT, DETECTED_KEYWORD_COUNT, GOLDEN_CASE_COUNT } from '../data/samples'
+import Plate from '../components/Plate.astro'
+import { samples, sourceHash, NATIVE_COUNT, DETECTED_KEYWORD_COUNT, GOLDEN_CASE_COUNT } from '../data/samples'
+import { readFileSync } from 'node:fs'
 
 const hero = samples.find((s) => s.id === 'flowchart')!
 const pie = samples.find((s) => s.id === 'pie')!
+const heroSvg = readFileSync('public/diagrams/flowchart.svg', 'utf-8').replace(/width="[^"]*"/, 'width="100%"')
+
+const measures = [
+  { value: String(DETECTED_KEYWORD_COUNT), label: 'Mermaid diagram keywords recognized by the detector' },
+  { value: String(NATIVE_COUNT), label: 'diagram types rendered natively by the Rust runtime' },
+  { value: GOLDEN_CASE_COUNT.toLocaleString('en-US'), label: 'golden-corpus cases rendered byte-identically' },
+]
 
 const runtimes = [
   {
-    name: 'Rust',
-    note: 'The runtime crate, with the parse artifact baked into the binary.',
+    runtime: 'Rust',
+    pkg: 'etassia',
     install: 'cargo add etassia',
     href: 'https://crates.io/crates/etassia',
+    role: 'The rendering runtime, with the checksummed parse artifact baked into the binary.',
   },
   {
-    name: 'Ruby',
-    note: 'The pure-Ruby reference implementation; the etassia-native gem carries the compiled engine.',
+    runtime: 'Ruby',
+    pkg: 'etassia',
     install: 'gem install etassia',
     href: 'https://rubygems.org/gems/etassia',
+    role: 'The pure-Ruby reference implementation, which every release is validated against.',
   },
   {
-    name: 'Python',
-    note: 'ctypes binding over the three-function C ABI of the shared library.',
+    runtime: 'Ruby native',
+    pkg: 'etassia-native',
+    install: 'gem install etassia-native',
+    href: 'https://rubygems.org/gems/etassia-native',
+    role: 'The compiled engine as a shared library that Ruby loads through Fiddle.',
+  },
+  {
+    runtime: 'Python',
+    pkg: 'etassia',
     install: 'pip install etassia',
     href: 'https://pypi.org/project/etassia/',
+    role: 'A ctypes binding over the C ABI of the shared library.',
   },
   {
-    name: 'JavaScript',
-    note: 'The engine compiled to WebAssembly, with no JavaScript-side reformatting.',
+    runtime: 'JavaScript',
+    pkg: 'etassia',
     install: 'npm install etassia',
     href: 'https://www.npmjs.com/package/etassia',
+    role: 'The engine compiled to WebAssembly, with no JavaScript-side reformatting.',
   },
 ]
-
-const syntaxCounts = [
-  { value: String(DETECTED_KEYWORD_COUNT), label: 'Mermaid diagram keywords detected' },
-  { value: String(NATIVE_COUNT), label: 'diagram types rendered natively by the Rust runtime' },
-  { value: GOLDEN_CASE_COUNT.toLocaleString('en-US'), label: 'golden-corpus cases with byte-identical SVG' },
-]
 ---
-<Layout>
-  <section class="bg-gradient-to-b from-primary-50 dark:from-primary-900/20 to-transparent">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-      <div class="max-w-3xl">
-        <h1 class="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">Etassia</h1>
-        <p class="mt-3 text-lg text-primary-700 dark:text-primary-300 italic">
-          <em>&#7940;&#954;&#964;&#940;&#963;&#963;&#969;</em> &mdash; drawn up in formation. The diagram language.
-        </p>
-        <p class="mt-6 text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-          Etassia is a diagram-rendering engine. It reads Mermaid diagram syntax &mdash; flowcharts,
-          sequence diagrams, class diagrams, state diagrams, and the chart and C4 families among
-          {DETECTED_KEYWORD_COUNT} detected diagram keywords &mdash; and produces SVG output. The engine
-          exists as a Rust runtime whose parse artifact is compiled ahead of time and checksummed, and
-          every diagram type in the native set is served by a hand-ported renderer. The implementation is
-          validated against a golden corpus of {GOLDEN_CASE_COUNT} cases in which the rendered SVG is
-          byte-identical to the output of the reference Ruby implementation, which makes the four runtime
-          bindings interchangeable.
-        </p>
-        <div class="mt-8 flex flex-wrap gap-3">
-          <a href="/playground" class="btn btn-primary">Open the playground</a>
-          <a href="/syntax" class="btn btn-secondary">Browse the supported syntaxes</a>
+<Layout
+  description={`Etassia renders ${DETECTED_KEYWORD_COUNT} Mermaid diagram keywords into SVG from a Rust runtime, and ${GOLDEN_CASE_COUNT.toLocaleString('en-US')} golden-corpus cases prove the output byte-identical across the Ruby, Rust, Python, and WebAssembly runtimes.`}
+>
+  <!-- ============ Hero: the thesis, stated as the engine states it ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-10">
+    <p class="block-label">Etassia &middot; from the Greek &#7940;&#954;&#964;&#940;&#963;&#963;&#969;, drawn up in formation</p>
+    <h1 class="display mt-4 text-4xl sm:text-5xl lg:text-[3.4rem] leading-[1.06] max-w-4xl">
+      One diagram source, identical SVG on every runtime.
+    </h1>
+    <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft dark:text-ink-soft-dark">
+      Etassia is a diagram-rendering engine. It reads Mermaid diagram syntax and produces SVG
+      output from a Rust runtime whose parse artifact is compiled ahead of time and checksummed,
+      which makes the output a function of the source alone. A golden corpus of
+      {GOLDEN_CASE_COUNT.toLocaleString('en-US')} cases holds that promise to the standard of
+      byte-identical equality, so the Ruby, Python, and WebAssembly bindings are interchangeable
+      parts rather than lookalikes.
+    </p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/playground" class="btn btn-primary">Open the playground</a>
+      <a href="/syntax" class="btn btn-secondary">Browse the supported syntaxes</a>
+    </div>
+  </section>
+
+  <!-- ============ Specimen: the source, the boundary, the plate ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-14" aria-label="A rendered specimen">
+    <div class="grid grid-cols-1 lg:grid-cols-[auto_1fr_1.4fr] gap-6 items-stretch">
+      <div class="plate self-start min-w-0" style="max-width: 30rem">
+        <div class="title-block !border-t-0 !border-b border-rule dark:border-rule-dark">
+          <span class="field"><span class="block-label">Diagram source</span><span class="hash-label">Mermaid text</span></span>
         </div>
+        <pre class="plate-canvas !bg-none font-mono text-[0.78rem] leading-relaxed whitespace-pre overflow-x-auto"><code>{hero.source.trim()}</code></pre>
+      </div>
+
+      <div class="hidden lg:flex flex-col items-center justify-center gap-2 py-10" aria-hidden="true">
+        <svg width="54" height="12" viewBox="0 0 54 12" class="abi-arrow"><path d="M0 6h48" stroke="currentColor" stroke-width="1.5" /><polygon points="54,6 46,2 46,10" fill="currentColor" /></svg>
+        <span class="block-label !tracking-[0.18em]">etassia_render</span>
+        <span class="hash-label">one of the three C ABI functions</span>
+      </div>
+
+      <div class="min-w-0">
+        <Plate
+          number="01"
+          name="Flowchart"
+          hash={sourceHash(hero)}
+          status="native"
+          inline
+          maxWidth="100%"
+          caption="This plate is a byte-identical copy of the engine's golden-corpus output. The hash is the first eight characters of the SHA-256 digest of the source on the left, so the same text always yields this same drawing."
+        >
+          <div class="plate-draw" set:html={heroSvg} />
+        </Plate>
       </div>
     </div>
   </section>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {syntaxCounts.map((c) => (
-        <div class="card text-center">
-          <p class="text-3xl font-bold text-primary-600 dark:text-primary-400">{c.value}</p>
-          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{c.label}</p>
+  <!-- ============ The measurement rule ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-14" aria-label="Measured scope">
+    <div class="dimension-rule" aria-hidden="true"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-x-10 gap-y-6 mt-6">
+      {measures.map((m) => (
+        <div class="border-l-2 border-pen dark:border-pen-dark pl-4">
+          <p class="display text-3xl">{m.value}</p>
+          <p class="mt-1 text-sm leading-relaxed text-graphite dark:text-graphite-dark">{m.label}</p>
         </div>
       ))}
     </div>
   </section>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <!-- ============ Why: the defect the engine removes ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-14">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-      <div>
-        <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">One source text produces identical SVG on every runtime</h2>
-        <p class="mt-4 leading-relaxed text-gray-600 dark:text-gray-300">
+      <div class="prose max-w-none lg:pr-6">
+        <h2>The problem Etassia removes</h2>
+        <p>
           Documentation pipelines mix languages. A static-site generator written in Ruby, a
           specification toolchain written in Python, and a documentation server written in Rust or
           JavaScript can each need to render the same diagram source, and a diagram that differs
-          between those pipelines is a defect that is difficult to attribute. Etassia addresses this
-          problem by keeping one Rust runtime as the rendering engine and exposing it through four
-          runtime bindings, and by validating the output of every diagram type against the reference
-          implementation rather than against a visual impression of it.
+          between those pipelines is a defect that is difficult to attribute. Etassia addresses
+          this problem by keeping one Rust runtime as the rendering engine, by exposing it through
+          bindings that share a single native boundary, and by validating the output of every
+          diagram type against the reference implementation rather than against a visual
+          impression of it.
         </p>
-        <p class="mt-4 leading-relaxed text-gray-600 dark:text-gray-300">
-          The four bindings share one native boundary: a C application binary interface (ABI) of
-          three functions, <code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">etassia_render</code>,
-          <code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">etassia_detect</code>, and
-          <code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">etassia_free</code>.
-          The Python binding reaches the ABI through ctypes, the WebAssembly build exports the same
-          surface over linear memory, and the Ruby compiled-engine gem loads the shared library that
-          the etassia-native package ships.
+        <h2>What the runtime guarantees</h2>
+        <ul>
+          <li>
+            The parse tree comes from a checksummed grammar artifact that is compiled ahead of
+            time, so parsing does not depend on a grammar interpreter at run time.
+          </li>
+          <li>
+            Every natively rendered diagram type has a hand-ported renderer, and its SVG is
+            byte-identical to the reference Ruby implementation on the golden corpus.
+          </li>
+          <li>
+            A diagram type without a native renderer reports an Unported condition through the
+            same error surface, which the bindings translate into a fallback call to the
+            reference implementation.
+          </li>
+        </ul>
+        <p>
+          The boundary itself is small enough to read in one line. Three C functions &mdash;
+          <code>etassia_render</code>, <code>etassia_detect</code>, and <code>etassia_free</code>
+          &mdash; carry every diagram between the runtime and its bindings: Python reaches them
+          through ctypes, WebAssembly exports them over linear memory, and the
+          <code>etassia-native</code> gem loads the shared library through Fiddle.
         </p>
-        <DiagramFigure
-          src={hero.svg}
-          alt="A left-to-right flowchart of a decision process, rendered from Mermaid syntax"
-          caption={`Rendered from a golden-corpus flowchart source. The SVG is a byte-identical copy of the reference implementation output (${GOLDEN_CASE_COUNT.toLocaleString('en-US')} corpus cases carry this property).`}
-        />
       </div>
-      <div>
-        <DiagramFigure
+      <div class="min-w-0">
+        <Plate
+          number="02"
+          name="Pie chart"
+          hash={sourceHash(pie)}
+          status="native"
           src={pie.svg}
           alt="A pie chart of pets adopted by volunteers, rendered from Mermaid syntax"
-          caption="A pie chart from the same corpus; the slices, labels and legend are produced by the pie renderer of the Rust runtime."
-          maxWidth="36rem"
+          maxWidth="100%"
+          caption="A pie chart from the same corpus. The slices, the labels, and the legend come from the pie renderer of the Rust runtime, in the same bytes that the Ruby reference produces."
         />
-        <div class="card mt-4">
-          <h3 class="font-semibold text-gray-900 dark:text-white">What the runtime guarantees</h3>
-          <ul class="mt-3 space-y-2 text-sm text-gray-600 dark:text-gray-300 list-disc pl-5">
-            <li>
-              The parse tree comes from a checksummed grammar artifact that is compiled ahead of
-              time, so parsing does not depend on a grammar interpreter at run time.
-            </li>
-            <li>
-              Every natively rendered diagram type has a hand-ported renderer, and its SVG is
-              byte-identical to the reference Ruby implementation on the golden corpus.
-            </li>
-            <li>
-              A diagram type without a native renderer reports an Unported condition through the
-              same error surface, which the bindings translate into a fallback call to the
-              reference implementation.
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
   </section>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <h2 class="text-2xl font-semibold text-gray-900 dark:text-white">Four runtimes</h2>
-    <p class="mt-3 max-w-3xl text-gray-600 dark:text-gray-300 leading-relaxed">
-      Each runtime is distributed through its native registry under the package name
-      <code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">etassia</code>; the
-      compiled-engine gem for Ruby is named <code class="px-1 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm">etassia-native</code>.
+  <!-- ============ Parts list: the runtimes ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-16">
+    <p class="block-label">Parts list</p>
+    <h2 class="display mt-2 text-2xl">Every runtime ships through its own registry</h2>
+    <p class="mt-3 max-w-2xl leading-relaxed text-ink-soft dark:text-ink-soft-dark">
+      Each package carries the plain name <code class="font-mono text-sm px-1 py-0.5 rounded-plate bg-rule/50 dark:bg-rule-dark/50">etassia</code> in
+      its registry, and the compiled-engine gem for Ruby is named
+      <code class="font-mono text-sm px-1 py-0.5 rounded-plate bg-rule/50 dark:bg-rule-dark/50">etassia-native</code>.
     </p>
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {runtimes.map((r) => (
-        <div class="card card-hover">
-          <div class="flex items-baseline justify-between gap-2">
-            <h3 class="font-semibold text-gray-900 dark:text-white">{r.name}</h3>
-            <a href={r.href} target="_blank" rel="noopener noreferrer" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">registry</a>
-          </div>
-          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">{r.note}</p>
-          <pre class="mt-3 rounded-lg bg-gray-900 text-gray-100 text-xs px-3 py-2 overflow-x-auto"><code>{r.install}</code></pre>
-        </div>
-      ))}
+    <div class="plate mt-6 overflow-x-auto">
+      <table class="w-full text-sm min-w-[44rem]">
+        <caption class="sr-only">The five Etassia packages, with install commands and registry links</caption>
+        <thead>
+          <tr class="border-b border-ink dark:border-ink-dark text-left">
+            <th class="py-3 px-4 block-label !tracking-[0.12em]">Runtime</th>
+            <th class="py-3 px-4 block-label !tracking-[0.12em]">Package</th>
+            <th class="py-3 px-4 block-label !tracking-[0.12em]">Role</th>
+            <th class="py-3 px-4 block-label !tracking-[0.12em]">Install</th>
+          </tr>
+        </thead>
+        <tbody class="font-serif">
+          {runtimes.map((r) => (
+            <tr class="border-b border-rule dark:border-rule-dark last:border-b-0 align-top">
+              <td class="py-3.5 px-4 font-medium whitespace-nowrap">{r.runtime}</td>
+              <td class="py-3.5 px-4">
+                <a href={r.href} target="_blank" rel="noopener noreferrer" class="font-mono text-[0.8rem] text-pen dark:text-pen-dark underline-offset-2 hover:underline">{r.pkg}</a>
+              </td>
+              <td class="py-3.5 px-4 text-ink-soft dark:text-ink-soft-dark leading-relaxed">{r.role}</td>
+              <td class="py-3.5 px-4"><code class="font-mono text-[0.78rem] whitespace-nowrap">{r.install}</code></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   </section>
 
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-20">
-    <div class="card">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Supported syntaxes</h2>
-          <p class="mt-2 max-w-2xl text-gray-600 dark:text-gray-300 leading-relaxed">
-            The detector recognizes {DETECTED_KEYWORD_COUNT} Mermaid diagram keywords, including
-            <code class="px-1 rounded bg-gray-100 dark:bg-gray-800 text-sm">graph</code>,
-            <code class="px-1 rounded bg-gray-100 dark:bg-gray-800 text-sm">flowchart-elk</code> and the
-            five C4 kinds. The Rust runtime renders {NATIVE_COUNT} diagram types natively; the
-            remaining detected types return an Unported condition that the bindings translate into a
-            fallback call. The syntax page lists every type with its source and its rendered output.
+  <!-- ============ Syntax handoff ============ -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 pb-8">
+    <div class="plate">
+      <div class="p-6 sm:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+        <div class="max-w-2xl">
+          <h2 class="display text-xl">The full plate catalogue</h2>
+          <p class="mt-2 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
+            The detector recognizes {DETECTED_KEYWORD_COUNT} Mermaid diagram keywords, and the
+            syntax page lists every one of them with a source sample and, where a native renderer
+            exists, the rendered plate. The {NATIVE_COUNT} natively rendered types and the
+            explicitly stated Unported boundary are shown side by side.
           </p>
         </div>
         <a href="/syntax" class="btn btn-primary shrink-0">See all diagram types</a>

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css'
+import { ClientRouter } from 'astro:transitions'
 import AppHeader from '../components/AppHeader.astro'
 import AppFooter from '../components/AppFooter.astro'
 
@@ -16,12 +17,22 @@ const {
 } = Astro.props
 
 const canonical = new URL(Astro.url.pathname, Astro.site)
-const ogImage = new URL('/og.svg', Astro.site)
+const ogImage = new URL('/og.png', Astro.site)
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
+  '@type': 'SoftwareApplication',
   name: 'Etassia',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Cross-platform',
+  description:
+    'A diagram-rendering engine that reads Mermaid diagram syntax and produces byte-identical SVG from a Rust runtime, shipped to crates.io, RubyGems, PyPI, and npm.',
   url: Astro.site,
+  offers: [
+    { '@type': 'Offer', name: 'Rust crate', url: 'https://crates.io/crates/etassia' },
+    { '@type': 'Offer', name: 'Ruby gem', url: 'https://rubygems.org/gems/etassia' },
+    { '@type': 'Offer', name: 'Python package', url: 'https://pypi.org/project/etassia/' },
+    { '@type': 'Offer', name: 'npm package', url: 'https://www.npmjs.com/package/etassia' },
+  ],
 }
 ---
 <!doctype html>
@@ -34,29 +45,40 @@ const jsonLd = {
   {noindex && <meta name="robots" content="noindex" />}
   <link rel="canonical" href={canonical} />
   <link rel="alternate" type="application/xml" title="Sitemap" href={new URL('sitemap-index.xml', Astro.site)} />
+  <meta name="color-scheme" content="light dark" />
   <meta property="og:site_name" content="Etassia" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
   <meta property="og:type" content="website" />
   <meta property="og:url" content={canonical} />
   <meta property="og:image" content={ogImage} />
-  <meta name="twitter:card" content="summary" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
   <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="theme-color" content="#f9fafb" id="meta-theme-color" />
+  <meta name="theme-color" content="#eef1ec" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#141916" media="(prefers-color-scheme: dark)" />
   <script is:inline>
-    function syncThemeColor() {
-      var meta = document.getElementById('meta-theme-color')
-      if (meta) meta.content = document.documentElement.classList.contains('dark') ? '#111827' : '#f9fafb'
-    }
-    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark')
-    }
-    syncThemeColor()
+    // Tri-state theme: the toggle stores "light", "dark" or "system"; a
+    // system setting follows prefers-color-scheme. This script runs before
+    // paint so the sheet color never flashes.
+    (function () {
+      var stored = localStorage.getItem('theme')
+      var dark = stored === 'dark' ||
+        ((stored === null || stored === 'system') &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches)
+      document.documentElement.classList.toggle('dark', dark)
+      document.documentElement.dataset.theme = stored || 'system'
+    })()
   </script>
+  <ClientRouter />
 </head>
-<body class="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased">
-  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:top-2 focus:left-2 focus:bg-white dark:focus:bg-gray-900 focus:text-primary-700 dark:focus:text-primary-300 focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg">Skip to content</a>
+<body class="min-h-screen flex flex-col bg-vellum text-ink dark:bg-vellum-dark dark:text-ink-dark antialiased">
+  <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-3 focus:left-3 focus:bg-sheet focus:dark:bg-sheet-dark focus:text-pen focus:dark:text-pen-dark focus:px-4 focus:py-2 focus:rounded-plate focus:border focus:border-pen">Skip to content</a>
   <AppHeader />
   <main id="main" class="flex-1">
     <slot />

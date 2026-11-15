@@ -71,10 +71,13 @@ export async function loadEngine(url = '/etassia.wasm'): Promise<void> {
   if (!response.ok) {
     throw new Error(`cannot fetch the etassia engine at ${url}: HTTP ${response.status}`)
   }
-  const { instance: instantiated } = await WebAssembly.instantiate(
-    await response.arrayBuffer(),
-    imports,
-  )
+  // Streaming compilation starts translating while the 8 MB module is still
+  // in flight; the non-streaming path remains for servers without the
+  // application/wasm content type.
+  const { instance: instantiated } =
+    response.headers.get('content-type')?.includes('application/wasm')
+      ? await WebAssembly.instantiateStreaming(response, imports)
+      : await WebAssembly.instantiate(await response.arrayBuffer(), imports)
   instance = instantiated.exports as unknown as Exports
   memory = instance.memory
 }
