@@ -6,5 +6,6 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   site: 'https://www.etassia.org',
   integrations: [vue(), sitemap()],
+  prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
   vite: { plugins: [tailwindcss()] },
 })

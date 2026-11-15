@@ -61,6 +61,7 @@ A,B
 const editorHost = ref<HTMLElement | null>(null)
 const output = ref<string>('')
 const typeName = ref<string>('')
+const renderMs = ref<number | null>(null)
 const errorText = ref<string>('')
 const errorKind = ref<'none' | 'unported' | 'error'>('none')
 const engineState = ref<'loading' | 'ready' | 'failed'>('loading')
@@ -71,12 +72,15 @@ let timer: ReturnType<typeof setTimeout> | null = null
 async function renderNow(source: string): Promise<void> {
   errorText.value = ''
   errorKind.value = 'none'
+  const started = performance.now()
   try {
     output.value = render(source)
     typeName.value = detect(source)
+    renderMs.value = Math.round(performance.now() - started)
   } catch (e) {
     output.value = ''
     typeName.value = ''
+    renderMs.value = null
     if (e instanceof UnportedError) {
       errorKind.value = 'unported'
       errorText.value =
@@ -122,12 +126,19 @@ onMounted(async () => {
       extensions: [
         basicSetup,
         EditorView.lineWrapping,
+        EditorView.theme({
+          '&': { backgroundColor: 'transparent', fontSize: '0.8125rem' },
+          '.cm-gutters': { backgroundColor: 'transparent', border: 'none', color: 'inherit', opacity: 0.55 },
+          '.cm-activeLine': { backgroundColor: 'transparent' },
+          '.cm-activeLineGutter': { backgroundColor: 'transparent' },
+        }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) onInput(update.state.doc.toString())
         }),
       ],
       parent: editorHost.value,
     })
+    v.dom.setAttribute('aria-label', 'Diagram source editor')
     view.value = v
   }
   await renderNow(current.value.source)
@@ -136,67 +147,81 @@ onMounted(async () => {
 
 <template>
   <div>
-    <div class="flex flex-wrap items-center gap-2 mb-4" role="group" aria-label="Preset diagrams">
+    <div class="flex flex-wrap items-center gap-2 mb-5" role="group" aria-label="Preset diagrams">
       <button
         v-for="preset in presets"
         :key="preset.id"
         type="button"
         class="btn text-sm px-3 py-1.5"
         :class="current.id === preset.id ? 'btn-primary' : 'btn-secondary'"
+        :aria-pressed="current.id === preset.id"
         @click="selectPreset(preset)"
       >
         {{ preset.name }}
       </button>
-      <span class="ml-auto text-sm text-gray-500 dark:text-gray-400">
-        <span v-if="engineState === 'loading'">The engine is loading.</span>
-        <span v-else-if="engineState === 'ready'">
-          The engine is ready.<span v-if="typeName"> The detected type is <code class="px-1 rounded bg-gray-100 dark:bg-gray-800">{{ typeName }}</code>.</span>
-        </span>
-        <span v-else class="text-red-600 dark:text-red-400">The engine failed to load.</span>
-      </span>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Diagram source</p>
+    <!-- The status line is announced to assistive technology as the engine works. -->
+    <p class="sr-only" role="status" aria-live="polite">
+      <span v-if="engineState === 'loading'">The engine is loading.</span>
+      <span v-else-if="engineState === 'failed'">The engine failed to load.</span>
+      <span v-else-if="typeName">The engine rendered the diagram. The detected type is {{ typeName }}.</span>
+    </p>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <section class="plate min-w-0" aria-label="Diagram source">
+        <div class="title-block !border-t-0 !border-b border-rule dark:border-rule-dark">
+          <span class="field"><span class="block-label">Diagram source</span><span class="hash-label">Mermaid text</span></span>
+          <span class="field ml-auto">
+            <span v-if="engineState === 'loading'" class="hash-label">the engine is loading</span>
+            <span v-else-if="engineState === 'ready' && typeName" class="hash-label">
+              detected: <strong class="text-pen dark:text-pen-dark font-semibold">{{ typeName }}</strong>
+            </span>
+            <span v-else-if="engineState === 'failed'" class="hash-label text-ochre dark:text-ochre-dark">the engine failed to load</span>
+          </span>
+        </div>
         <div
           ref="editorHost"
-          class="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900 text-sm"
+          class="px-3 py-2 min-h-[22rem] bg-sheet dark:bg-sheet-dark text-ink dark:text-ink-dark"
         ></div>
-        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <p class="px-4 py-2 text-xs border-t border-rule dark:border-rule-dark text-graphite dark:text-graphite-dark">
           The output re-renders 250 ms after the last keystroke.
         </p>
-      </div>
+      </section>
 
-      <div class="min-w-0">
-        <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">SVG output</p>
-        <div
-          v-if="output"
-          class="diagram-canvas"
-          data-testid="playground-output"
-        >
-          <!-- The SVG string is produced entirely by the Rust engine over the wasm boundary. -->
-          <div v-html="output"></div>
+      <section class="min-w-0" aria-label="SVG output">
+        <div v-if="output" class="plate" data-testid="playground-output">
+          <div class="plate-canvas">
+            <!-- The SVG string is produced entirely by the Rust engine over the wasm boundary. -->
+            <div v-html="output"></div>
+          </div>
+          <div class="title-block">
+            <span class="field"><span class="block-label">Type</span><span class="text-sm font-medium">{{ typeName }}</span></span>
+            <span v-if="renderMs !== null" class="field"><span class="block-label">Render</span><span class="hash-label">{{ renderMs }} ms</span></span>
+            <span class="field"><span class="stamp stamp-native">Native</span></span>
+          </div>
         </div>
-        <div
-          v-else-if="errorText"
-          class="rounded-lg border p-4 text-sm"
-          :class="
-            errorKind === 'unported'
-              ? 'border-yellow-300 bg-yellow-50 text-yellow-900 dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-200'
-              : 'border-red-300 bg-red-50 text-red-900 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200'
-          "
-          data-testid="playground-error"
-        >
-          {{ errorText }}
+
+        <div v-else-if="errorText" class="plate" data-testid="playground-error">
+          <div class="p-5 text-sm leading-relaxed border-l-2"
+            :class="errorKind === 'unported' ? 'border-ochre dark:border-ochre-dark' : 'border-red-600 dark:border-red-400'">
+            <span class="stamp" :class="errorKind === 'unported' ? 'stamp-fallback' : 'stamp-fallback'">
+              {{ errorKind === 'unported' ? 'Unported' : 'Error' }}
+            </span>
+            <p class="mt-3">{{ errorText }}</p>
+          </div>
         </div>
-        <div v-else class="rounded-lg border border-dashed border-gray-300 dark:border-gray-700 p-8 text-center text-sm text-gray-500 dark:text-gray-400">
-          The rendered diagram appears here.
+
+        <div v-else class="plate" data-testid="playground-empty">
+          <div class="plate-canvas min-h-[22rem] flex items-center justify-center text-sm text-graphite dark:text-graphite-dark">
+            The rendered diagram appears here.
+          </div>
         </div>
-        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-          The output is drawn on a white canvas because the engine emits light-theme reference SVG.
+
+        <p class="mt-2 text-xs text-graphite dark:text-graphite-dark">
+          The output is drawn on a light canvas because the engine emits light-theme reference SVG.
         </p>
-      </div>
+      </section>
     </div>
   </div>
 </template>

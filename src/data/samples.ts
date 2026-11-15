@@ -326,3 +326,15 @@ export const NATIVE_COUNT = samples.filter((s) => s.native).length
 export const DETECTED_KEYWORD_COUNT = 31
 
 export const GOLDEN_CASE_COUNT = 1206
+
+import { createHash } from 'node:crypto'
+
+/**
+ * The first eight characters of the SHA-256 digest of a diagram source, in
+ * the same spirit as the golden corpus's hashed case files: identical
+ * sources carry identical digests, so a plate's hash is a statement that
+ * this exact text produced this exact SVG.
+ */
+export function sourceHash(sample: Sample): string {
+  return createHash('sha256').update(sample.source.trim()).digest('hex').slice(0, 8)
+}
