@@ -62,10 +62,11 @@ const runtimes = [
       One diagram source, identical SVG on every runtime.
     </h1>
     <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft dark:text-ink-soft-dark">
-      Etassia is a diagram-rendering engine for the Mermaid and PlantUML syntax families. It reads
-      diagram source text and produces SVG output from a Rust runtime whose parse artifact is
-      compiled ahead of time and checksummed, which makes the output a function of the source
-      alone. A golden corpus of {GOLDEN_CASE_COUNT.toLocaleString('en-US')} Mermaid cases holds
+      Etassia is a diagram-rendering engine for the Mermaid and PlantUML syntax families, and its
+      registry is designed to carry the families after them — including diagrams derived from
+      models such as XML Schema, JSON Schema, UML, and EXPRESS. It reads diagram source text and
+      produces SVG output from a Rust runtime whose parse artifact is compiled ahead of time and
+      checksummed, which makes the output a function of the source alone. A golden corpus of {GOLDEN_CASE_COUNT.toLocaleString('en-US')} Mermaid cases holds
       that promise to the standard of byte-identical equality, so the Ruby, Python, and
       WebAssembly bindings are interchangeable parts rather than lookalikes.
     </p>
