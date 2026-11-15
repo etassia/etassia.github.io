@@ -1,12 +1,12 @@
 // Browser loader for the vendored etassia WebAssembly engine (public/etassia.wasm).
 //
 // The module is the same unprocessed build the npm package ships: plain C-ABI
-// exports over linear memory (etassia_alloc / etassia_render / etassia_detect /
-// etassia_result_ptr / etassia_result_len), no wasm-bindgen glue. The host
-// copies the UTF-8 source into linear memory, calls the export, and reads the
-// result back. Status 0 means the result buffer holds SVG or a type name;
-// status 1 means it holds a JSON error object whose class "Unported" signals
-// that the caller should route to the reference Ruby implementation.
+// exports over linear memory (etassia_alloc / etassia_render / etassia_render_dim /
+// etassia_detect / etassia_result_ptr / etassia_result_len), no wasm-bindgen glue.
+// The host copies the UTF-8 source in with `etassia_alloc`, calls the export, and
+// reads the result back. Status 0 means the result buffer holds SVG or a type
+// name; status 1 means it holds a JSON error object whose class "Unported"
+// signals that the caller should route to the reference Ruby implementation.
 
 export class UnportedError extends Error {
   override name = 'UnportedError'
@@ -106,6 +106,11 @@ function call(fn: 'etassia_render' | 'etassia_detect', source: string): string {
 /** Render a Mermaid diagram source to SVG through the Rust engine. */
 export function render(source: string): string {
   return call('etassia_render', source)
+}
+
+/** Render a DIM 0.1 document to SVG through the Rust engine. */
+export function renderDim(source: string): string {
+  return call('etassia_render_dim', source)
 }
 
 /** Return the detected diagram type name of the source. */
