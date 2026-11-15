@@ -54,6 +54,11 @@ const repos = [
       <p class="block-label">About</p>
       
       <h1 class="display !mt-3 text-4xl leading-tight">Etassia draws order out of source text</h1>
+      <p class="!text-lg !mt-5 leading-relaxed text-ink-soft dark:text-ink-soft-dark border-l-2 border-pen dark:border-pen-dark pl-4">
+        Etassia exists so that every formation a person can describe — as diagram text or as a
+        model — can be drawn as a diagram: laid out by deterministic engines, rendered to the same
+        bytes on every runtime, and reproducible for as long as the source survives.
+      </p>
       <p class="!text-lg !mt-5 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
         Etassia is a diagram-rendering engine for the Mermaid and PlantUML diagram syntaxes. The
         name, the mission, and the engineering all point at the same idea: a diagram is order
@@ -134,6 +139,17 @@ const repos = [
         and parses its own sources behind one interface. The Mermaid and PlantUML families are the
         members of this registry, and a new family is a registration rather than a change to the
         engine.
+      </p>
+      <p class="mt-4 leading-relaxed">
+        The registry is designed to stay open in two directions. Diagrams are not only written;
+        they are also derived, and the model worlds of the LutaML stack — XML Schema, JSON Schema,
+        UML, and EXPRESS — are designed to enter the engine as views through one versioned
+        interchange model, so that a schema corpus held by its own tools can be drawn without the
+        engine re-parsing what those tools already parse. Layout, likewise, is an engine of its
+        own: the algorithms of the Eclipse Layout Kernel (ELK), from layered and force-directed
+        placement to connector routing, are being brought to the Rust runtime as a dedicated
+        layout crate, because the position of every node is as much a part of the reproducibility
+        contract as the stroke of every edge.
       </p>
       <p class="mt-4 leading-relaxed">
         The boundary of this mission is stated explicitly. Types in the Mermaid syntax for which
