@@ -12,7 +12,7 @@ interface Props {
 
 const {
   title = 'Etassia',
-  description = 'Etassia renders Mermaid diagram syntax to SVG from a Rust runtime with a checksummed parse artifact, and ships identical output to Ruby, Rust, Python, and WebAssembly runtimes.',
+  description = 'Etassia renders diagram sources written in the Mermaid and PlantUML syntax families to SVG, and ships byte-identical output to Ruby, Rust, Python, and WebAssembly runtimes.',
   noindex = false,
 } = Astro.props
 
@@ -25,7 +25,7 @@ const jsonLd = {
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Cross-platform',
   description:
-    'A diagram-rendering engine that reads Mermaid diagram syntax and produces byte-identical SVG from a Rust runtime, shipped to crates.io, RubyGems, PyPI, and npm.',
+    'A diagram-rendering engine for the Mermaid and PlantUML syntax families, producing byte-identical SVG from one engine, shipped to crates.io, RubyGems, PyPI, and npm.',
   url: Astro.site,
   offers: [
     { '@type': 'Offer', name: 'Rust crate', url: 'https://crates.io/crates/etassia' },

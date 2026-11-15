@@ -8,18 +8,19 @@ let plateNumber = 0
 ---
 <Layout
   title="Diagram syntaxes — Etassia"
-  description="The Mermaid diagram syntaxes Etassia supports: 22 diagram types rendered natively by the Rust runtime, with the detected-but-unported boundary stated explicitly."
+  description="The diagram syntaxes Etassia supports: the Mermaid family catalogue with 22 diagram types rendered natively by the Rust runtime, and the PlantUML family carried by the same engine."
 >
   <article class="max-w-6xl mx-auto px-4 sm:px-6 py-14">
     <header class="max-w-3xl">
       <p class="block-label">The catalogue</p>
       <h1 class="display mt-3 text-4xl leading-tight">Supported diagram syntaxes</h1>
       <p class="mt-5 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
-        A diagram source that reaches Etassia passes through two stages before any renderer runs.
-        The detector first recognizes which of the {DETECTED_KEYWORD_COUNT} Mermaid diagram
-        keywords the source uses; the parse stage then reads the body of the source with the
-        grammar entry for that type. This page lists every detected type as a plate with its
-        source sample and, where a native renderer exists, the SVG that the engine produces for it.
+        Etassia reads diagram sources written in the Mermaid and PlantUML syntax families. The
+        engine organizes this surface as a notation registry, in which each family claims and
+        parses its own sources. This page catalogues the Mermaid family plate by plate: the
+        detector first recognizes which of the {DETECTED_KEYWORD_COUNT} Mermaid diagram keywords
+        the source uses; the parse stage then reads the body of the source with the grammar entry
+        for that type, and the plate shows the SVG that the engine produces for it.
       </p>
       <p class="mt-4 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
         The boundary of the current release is stated explicitly rather than left to be
@@ -33,7 +34,8 @@ let plateNumber = 0
         between this output and the Rust runtime for each of the
         {GOLDEN_CASE_COUNT.toLocaleString('en-US')} cases. Each plate's hash is the first eight
         characters of the SHA-256 digest of its source, so the catalogue identifies every drawing
-        by the exact text that produced it.
+        by the exact text that produced it. The PlantUML family travels the same notation
+        surface, with its own grammar entries and parsers inside the same engine.
       </p>
     </header>
 

@@ -10,7 +10,7 @@ const heroSvg = readFileSync('public/diagrams/flowchart.svg', 'utf-8').replace(/
 
 const measures = [
   { value: String(DETECTED_KEYWORD_COUNT), label: 'Mermaid diagram keywords recognized by the detector' },
-  { value: String(NATIVE_COUNT), label: 'diagram types rendered natively by the Rust runtime' },
+  { value: String(NATIVE_COUNT), label: 'Mermaid diagram types rendered natively by the Rust runtime' },
   { value: GOLDEN_CASE_COUNT.toLocaleString('en-US'), label: 'golden-corpus cases rendered byte-identically' },
 ]
 
@@ -62,12 +62,12 @@ const runtimes = [
       One diagram source, identical SVG on every runtime.
     </h1>
     <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ink-soft dark:text-ink-soft-dark">
-      Etassia is a diagram-rendering engine. It reads Mermaid diagram syntax and produces SVG
-      output from a Rust runtime whose parse artifact is compiled ahead of time and checksummed,
-      which makes the output a function of the source alone. A golden corpus of
-      {GOLDEN_CASE_COUNT.toLocaleString('en-US')} cases holds that promise to the standard of
-      byte-identical equality, so the Ruby, Python, and WebAssembly bindings are interchangeable
-      parts rather than lookalikes.
+      Etassia is a diagram-rendering engine for the Mermaid and PlantUML syntax families. It reads
+      diagram source text and produces SVG output from a Rust runtime whose parse artifact is
+      compiled ahead of time and checksummed, which makes the output a function of the source
+      alone. A golden corpus of {GOLDEN_CASE_COUNT.toLocaleString('en-US')} Mermaid cases holds
+      that promise to the standard of byte-identical equality, so the Ruby, Python, and
+      WebAssembly bindings are interchangeable parts rather than lookalikes.
     </p>
     <div class="mt-8 flex flex-wrap gap-3">
       <a href="/playground" class="btn btn-primary">Open the playground</a>
@@ -220,7 +220,8 @@ const runtimes = [
             The detector recognizes {DETECTED_KEYWORD_COUNT} Mermaid diagram keywords, and the
             syntax page lists every one of them with a source sample and, where a native renderer
             exists, the rendered plate. The {NATIVE_COUNT} natively rendered types and the
-            explicitly stated Unported boundary are shown side by side.
+            explicitly stated Unported boundary are shown side by side; the PlantUML family is
+            carried by the same engine through the notation registry.
           </p>
         </div>
         <a href="/syntax" class="btn btn-primary shrink-0">See all diagram types</a>
