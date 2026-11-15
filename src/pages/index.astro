@@ -34,7 +34,7 @@ const runtimes = [
     pkg: 'etassia-native',
     install: 'gem install etassia-native',
     href: 'https://rubygems.org/gems/etassia-native',
-    role: 'The compiled engine as a shared library that Ruby loads through Fiddle.',
+    role: 'The compiled engine as a shared library that Ruby loads through FFI.',
   },
   {
     runtime: 'Python',
@@ -157,7 +157,7 @@ const runtimes = [
           <code>etassia_render</code>, <code>etassia_detect</code>, and <code>etassia_free</code>
           &mdash; carry every diagram between the runtime and its bindings: Python reaches them
           through ctypes, WebAssembly exports them over linear memory, and the
-          <code>etassia-native</code> gem loads the shared library through Fiddle.
+          <code>etassia-native</code> gem loads the shared library through FFI.
         </p>
       </div>
       <div class="min-w-0">
