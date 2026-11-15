@@ -47,7 +47,7 @@ const repos = [
 ---
 <Layout
   title="About — Etassia"
-  description="The etymology, origin, mission and ecosystem of Etassia, a diagram-rendering engine that produces byte-identical SVG from Mermaid syntax on four runtimes."
+  description="The etymology, origin, mission and ecosystem of Etassia, a diagram-rendering engine for the Mermaid and PlantUML syntaxes that produces byte-identical SVG on four runtimes."
 >
   <article class="max-w-3xl mx-auto px-4 sm:px-6 py-14 prose">
     <header class="mb-14">
@@ -55,9 +55,10 @@ const repos = [
       
       <h1 class="display !mt-3 text-4xl leading-tight">Etassia draws order out of source text</h1>
       <p class="!text-lg !mt-5 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
-        Etassia is a diagram-rendering engine for Mermaid diagram syntax. The name, the mission,
-        and the engineering all point at the same idea: a diagram is order drawn out of source
-        text, and the drawing should not depend on the language the drawing program is written in.
+        Etassia is a diagram-rendering engine for the Mermaid and PlantUML diagram syntaxes. The
+        name, the mission, and the engineering all point at the same idea: a diagram is order
+        drawn out of source text, and the drawing should not depend on the language the drawing
+        program is written in.
       </p>
     </header>
 
@@ -107,7 +108,8 @@ const repos = [
       </p>
       <p class="mt-4 leading-relaxed">
         Etassia began as a pure-Ruby implementation that renders Mermaid syntax to SVG, grown for
-        the publication pipelines that Ribose maintains for standards-development organisations.
+        the publication pipelines that Ribose maintains for standards-development organisations,
+        and grew a second syntax family when the PlantUML notation joined the engine.
         The implementation was then ported to Rust, diagram type by diagram type, with a hand-ported
         renderer for every type in the native set. The correctness measure of the port is strict:
         on a golden corpus of 1,206 cases, the SVG the Rust runtime produces is byte-identical to
@@ -126,6 +128,12 @@ const repos = [
         act of binding rather than a reimplementation. And it measures every renderer against the
         reference implementation on the golden corpus, so that identical input yields identical
         SVG on Ruby, Rust, Python and WebAssembly.
+      </p>
+      <p class="mt-4 leading-relaxed">
+        The syntax surface is organized as a notation registry, in which each syntax family claims
+        and parses its own sources behind one interface. The Mermaid and PlantUML families are the
+        members of this registry, and a new family is a registration rather than a change to the
+        engine.
       </p>
       <p class="mt-4 leading-relaxed">
         The boundary of this mission is stated explicitly. Types in the Mermaid syntax for which
