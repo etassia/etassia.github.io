@@ -13,11 +13,11 @@ import Playground from '../islands/Playground.vue'
       <p class="mt-5 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
         Rendering a diagram is the work of a rendering engine, not of a visual impression, and the
         playground exists so that the engine can be exercised directly. The page runs the same
-        WebAssembly build of the Rust runtime that the npm package ships, and that build carries
-        the Mermaid family of the engine; the source in the editor is handed to the engine over
-        the same boundary the bindings use, and the engine returns the SVG, which the page
-        inserts without modification. The output re-renders 250 milliseconds after the last
-        keystroke.
+        WebAssembly build of the Rust runtime that the npm package ships; the build carries the
+        Mermaid family, and — through the Diagram Interchange Model — any diagram a model tool
+        emits as DIM. The source in the editor is handed to the engine over the same boundary the
+        bindings use, and the engine returns the SVG, which the page inserts without
+        modification. The output re-renders 250 milliseconds after the last keystroke.
       </p>
       <p class="mt-4 leading-relaxed text-ink-soft dark:text-ink-soft-dark">
         The boundary of the browser build is the boundary of its native renderer set. A source

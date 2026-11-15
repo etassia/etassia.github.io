@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, shallowRef } from 'vue'
 import { basicSetup, EditorView } from 'codemirror'
-import { detect, EtassiaError, loadEngine, render, UnportedError } from '../lib/etassia-browser'
+import { detect, EtassiaError, loadEngine, render, renderDim, UnportedError } from '../lib/etassia-browser'
 
 interface Preset {
   id: string
@@ -56,6 +56,30 @@ const presets: Preset[] = [
 A,B
 1,2`,
   },
+  {
+    id: 'dim',
+    name: 'DIM (JSON)',
+    source: `{
+  "dim": "0.1",
+  "notation": "generic",
+  "graph": {
+    "id": "root",
+    "layoutOptions": { "elk.algorithm": "layered", "elk.direction": "RIGHT" },
+    "children": [
+      { "id": "n1", "width": 140, "height": 60,
+        "content": [{ "kind": "label", "text": "Person", "role": "title" }] },
+      { "id": "n2", "width": 140, "height": 80,
+        "content": [
+          { "kind": "label", "text": "Address", "role": "title" },
+          { "kind": "label", "text": "+ city: String", "role": "member" } ] }
+    ],
+    "edges": [
+      { "id": "e1", "sources": ["n1"], "targets": ["n2"],
+        "style": "association", "label": { "text": "lives at" } }
+    ]
+  }
+}`,
+  },
 ]
 
 const editorHost = ref<HTMLElement | null>(null)
@@ -74,8 +98,15 @@ async function renderNow(source: string): Promise<void> {
   errorKind.value = 'none'
   const started = performance.now()
   try {
-    output.value = render(source)
-    typeName.value = detect(source)
+    if (current.value.id === 'dim') {
+      // The DIM notation carries its own type; the Mermaid detector
+      // does not read JSON.
+      output.value = renderDim(source)
+      typeName.value = 'dim'
+    } else {
+      output.value = render(source)
+      typeName.value = detect(source)
+    }
     renderMs.value = Math.round(performance.now() - started)
   } catch (e) {
     output.value = ''
